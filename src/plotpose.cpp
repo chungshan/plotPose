@@ -5,11 +5,14 @@
 
 
 geometry_msgs::PoseStamped pose;
+geometry_msgs::Vector3 output_pose_data;
 geometry_msgs::Point optitrack, estimate;
 void pose_cb(const geometry_msgs::PoseStamped::ConstPtr &msg){
   pose = *msg;
 }
-
+void output_pose_cb(const geometry_msgs::Vector3::ConstPtr &msg){
+  output_pose_data = *msg;
+}
 int main( int argc, char** argv )
 {
   ros::init(argc, argv, "points_and_lines");
@@ -17,7 +20,7 @@ int main( int argc, char** argv )
   ros::Publisher marker_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 10);
   ros::Publisher marker_pub2 = n.advertise<visualization_msgs::Marker>("visualization_marker2", 10);
   ros::Subscriber pose_sub = n.subscribe<geometry_msgs::PoseStamped>("/vrpn_client_node/RigidBody1/pose", 10, pose_cb);
-
+  ros::Subscriber output_sub = n.subscribe<geometry_msgs::Vector3>("/output_pose", 10, output_pose_cb);
   uint32_t shape = visualization_msgs::Marker::CUBE;
   ros::Rate r(30);
 
@@ -29,9 +32,9 @@ int main( int argc, char** argv )
     optitrack.y = pose.pose.position.y;
     optitrack.z = pose.pose.position.z;
 
-    estimate.x = 1;
-    estimate.y = 1;
-    estimate.z = 1;
+    estimate.x = output_pose_data.x;
+    estimate.y = output_pose_data.y;
+    estimate.z = output_pose_data.z;
 
 
     visualization_msgs::Marker points, line_strip, line_list, marker;
